@@ -1,6 +1,8 @@
 var canvas = document.getElementById("canvas");
 
-
+if (!Date.now) {
+Date.now = function() { return new Date().getTime(); };
+}
 
 function contextmenu(e) {
     if (e.preventDefault !== undefined)
@@ -145,7 +147,7 @@ function touch(e) {
 function timeStep() {
     canvas.setAttribute('width', mainInterface.size.width);
     canvas.setAttribute('height', mainInterface.size.height);
-    computeMainInterface();
+    iiiStep();
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, mainInterface.size.width, mainInterface.size.height);
     draw(ctx, mainInterface.graphics);
@@ -154,9 +156,11 @@ function timeStep() {
 
 
 var mainInterface;
+var state;
 
 setTimeout(function() {
     console.log("iii System Initialized");
+    state = {startTime:Date.now()};
     mainInterface = {
         mouse: {
             buttons: 0,
@@ -288,24 +292,33 @@ setTimeout(function() {
     window.addEventListener("devicelight", devicelight, false);
     window.addEventListener("deviceproximity", deviceproximity, false);
 
-    timeStep();
+    window.setInterval(function(){
+      mainInterface.time = Date.now();
+      timeStep();
+    }, 1000/60);
+
+
 }, 100);
 
 
-function computeMainInterface() {
+function iiiStep() {
 
     var cursor = {
         type: "shadow",
-        blur: 20,
+        blur: mainInterface.mouse.buttons===0?20:10,
         offset: {
             x: 0,
-            y: 4
+            y: mainInterface.mouse.buttons===0?4:2
         },
         color: "rgba(0, 0, 0, 0.5)",
         content: {
             type: "translate",
             x: mainInterface.mouse.position.x,
             y: mainInterface.mouse.position.y,
+            content: {
+          type: "scale",
+          width: mainInterface.mouse.buttons===0?1:0.8,
+          height: mainInterface.mouse.buttons===0?1:0.8,
             content: {
                 type: "fill",
                 style: "rgba(200, 0, 200, 1)",
@@ -328,10 +341,51 @@ function computeMainInterface() {
                     }, {
                         type: "close"
                     }]
-                }
+                }}
             }
         }
     };
+
+    var buttonheight=Math.min(Math.max (mainInterface.size.height - 500, 100),400);
+
+    var buttonPushed = mainInterface.mouse.buttons == 1;
+
+    var theButton = {
+        type: "shadow",
+        blur: buttonPushed?10:20,
+        offset: {
+            x: 0,
+            y: buttonPushed?2:4
+        },
+        color: "rgba(0, 0, 0, 0.5)",
+        content:{
+            type: "group",
+            content: [{
+                    type: "fill",
+                    style: "rgba(0, 171, 255, 1)",
+                    content: {
+                        type: "rect",
+                        x: 60,
+                        y: 100,
+                        width: mainInterface.size.width - 120,
+                        height: buttonheight
+                    }
+                },
+                {
+                    type: "fill",
+                    style: "rgba(255, 255, 255, 1)",
+                    content: {
+                        type: "text",
+                        textAlign: "center",
+                        font:"200 30px Helvetica neue",
+                        text: "Button",
+                        x: mainInterface.size.width / 2,
+                        y: 100+buttonheight/2
+                    }
+                }
+
+            ]
+        }};
 
     var theWindow = {
         type: "shadow",
@@ -342,17 +396,37 @@ function computeMainInterface() {
         },
         color: "rgba(0, 0, 0, 0.5)",
         content: {
-            type: "fill",
-            style: "rgba(255, 255, 255, 1)",
-            content: {
-                type: "rect",
-                x:30,
-                y:30,
-                width:mainInterface.size.width-60,
-                height:mainInterface.size.height-60
-            }
+            type: "group",
+            content: [{
+                    type: "fill",
+                    style: "rgba(255, 255, 255, 1)",
+                    content: {
+                        type: "rect",
+                        x: 30,
+                        y: 30,
+                        width: mainInterface.size.width - 60,
+                        height: mainInterface.size.height - 60
+                    }
+                },
+                {
+                    type: "fill",
+                    style: "rgba(50, 50, 50, 1)",
+                    content: {
+                        type: "text",
+                        textAlign: "center",
+                        font:"200 30px Helvetica neue",
+                        text: "Time elapsed " + ((mainInterface.time - state.startTime) / 1000.0),
+                        x: mainInterface.size.width / 2,
+                        y: 70
+                    }
+                },
+                theButton
+
+            ]
         }
     };
+
+
 
     mainInterface.graphics = {
         type: "group",
@@ -362,56 +436,10 @@ function computeMainInterface() {
         ]
     };
 
+
+
 }
 
-
-// Rendering stuff
-
-
-
-function drawCursor() {
-    var ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, 800, 600);
-    var cursor = {
-        type: "shadow",
-        blur: 20,
-        offset: {
-            x: 0,
-            y: 4
-        },
-        color: "rgba(0, 0, 0, 0.5)",
-        content: {
-            type: "translate",
-            x: mainInterface.mouse.position.x,
-            y: mainInterface.mouse.position.y,
-            content: {
-                type: "fill",
-                style: "rgba(200, 0, 200, 1)",
-                content: {
-                    type: "path",
-                    content: [{
-                        type: "begin"
-                    }, {
-                        type: "move",
-                        x: 0,
-                        y: 0
-                    }, {
-                        type: "line",
-                        x: 0,
-                        y: 15
-                    }, {
-                        type: "line",
-                        x: 10.6,
-                        y: 10.6
-                    }, {
-                        type: "close"
-                    }]
-                }
-            }
-        }
-    };
-    draw(ctx, cursor);
-}
 
 
 // Generic retained mode rendering
@@ -446,6 +474,7 @@ function draw(ctx, object) {
             }
             break;
         case "rect":
+            ctx.beginPath();
             ctx.rect(object.x, object.y, object.width, object.height);
             break;
         case "shadow":
@@ -507,7 +536,14 @@ function draw(ctx, object) {
                 draw(ctx, object.content[i]);
             }
             break;
+        case "text":
+            //TODO improve text alignement options using ctx.textMeasure()
+            ctx.textAlign = object.textAlign;
+            ctx.font = object.font;
+            ctx.beginPath();
+            ctx.fillText(object.text, object.x, object.y);
+            break;
         default:
-            throw new Error("unexpected graphic element type \"" + object.type +"\"");
+            throw new Error("unexpected graphic element type \"" + object.type + "\"");
     }
 }
