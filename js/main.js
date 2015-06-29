@@ -32,21 +32,76 @@ window.addEventListener("resize",resize,true);
 window.addEventListener("devicemotion", devicemotion, true);
 window.addEventListener("deviceorientation", deviceorientation, true);
 
+//
+// altKey	Returns whether the "ALT" key was pressed when the mouse event was triggered	2
+// button	Returns which mouse button was pressed when the mouse event was triggered	2
+// buttons	Returns which mouse buttons were pressed when the mouse event was triggered	3
+// clientX	Returns the horizontal coordinate of the mouse pointer, relative to the current window, when the mouse event was triggered	2
+// clientY	Returns the vertical coordinate of the mouse pointer, relative to the current window, when the mouse event was triggered	2
+// ctrlKey	Returns whether the "CTRL" key was pressed when the mouse event was triggered	2
+// detail	Returns a number that indicates how many times the mouse was clicked	2
+// metaKey	Returns whether the "META" key was pressed when an event was triggered	2
+// relatedTarget	Returns the element related to the element that triggered the mouse event	2
+// screenX	Returns the horizontal coordinate of the mouse pointer, relative to the screen, when an event was triggered	2
+// screenY	Returns the vertical coordinate of the mouse pointer, relative to the screen, when an event was triggered	2
+// shiftKey	Returns whether the "SHIFT" key was pressed when an event was triggered	2
+// which	Returns which mouse button was pressed when the mouse event was triggered
 
 function mousedown(e) {
-  console.log("mousedown");
+  var target = e.target;
+  var rect = canvas.getBoundingClientRect();
+  var offsetX = e.clientX - rect.left;
+  var offsetY = e.clientY - rect.top;
+  var mouse={
+    buttons:e.buttons,
+    position:{
+      x:offsetX,
+      y:offsetY
+    }
+  };
+  var time = {
+    time:e.timeStamp
+  };
+  var maininterface = {mouse:mouse,time:time};
+  console.log("mousedown "+JSON.stringify(maininterface));
 }
 
 function mouseup(e) {
-  console.log("mouseup");
+  var target = e.target;
+var rect = canvas.getBoundingClientRect();
+var offsetX = e.clientX - rect.left;
+var offsetY = e.clientY - rect.top;
+var mouse={
+  buttons:e.buttons,
+  position:{
+    x:offsetX,
+    y:offsetY
+  }
+};
+var time = {
+  time:e.timeStamp
+};
+var maininterface = {mouse:mouse,time:time};
+console.log("mouseup "+JSON.stringify(maininterface));
 }
 
 function mousemove(e) {
-    console.log("mousemove");
-    var target = e.target;
-    var rect = canvas.getBoundingClientRect();
-    var offsetX = e.clientX - rect.left;
-    var offsetY = e.clientY - rect.top;
+  var target = e.target;
+  var rect = canvas.getBoundingClientRect();
+  var offsetX = e.clientX - rect.left;
+  var offsetY = e.clientY - rect.top;
+  var mouse={
+    buttons:e.buttons,
+    position:{
+      x:offsetX,
+      y:offsetY
+    }
+  };
+  var time = {
+    time:e.timeStamp
+  };
+  var maininterface = {mouse:mouse,time:time};
+  console.log("mousemove "+JSON.stringify(maininterface));
     drawCursor(offsetX, offsetY);
 }
 
