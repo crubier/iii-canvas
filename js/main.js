@@ -67,6 +67,7 @@ function keydown(e) {
     }
     if (mainInterface.keyboard[key] !== true) {
         mainInterface.keyboard[key] = true;
+        mainInterface.time = e.timeStamp;
         timeStep();
     }
 }
@@ -82,6 +83,7 @@ function keyup(e) {
     }
     if (mainInterface.keyboard[key] !== false) {
         mainInterface.keyboard[key] = false;
+        mainInterface.time = e.timeStamp;
         timeStep();
     }
 }
