@@ -1,38 +1,40 @@
 var canvas = document.getElementById("canvas");
 
 // Mouse events
-canvas.addEventListener("mousemove", mouse, true);
-canvas.addEventListener("mousedown", mouse, true);
-canvas.addEventListener("mouseup", mouse, true);
-canvas.addEventListener("wheel", mouse, true);
+canvas.addEventListener("mousemove", mouse, false);
+canvas.addEventListener("mousedown", mouse, false);
+canvas.addEventListener("mouseup", mouse, false);
+canvas.addEventListener("wheel", mouse, false);
 
 // Prevent context menu
-canvas.addEventListener("contextmenu", function(e) {
+canvas.addEventListener("contextmenu",contextmenu , false);
+
+// Touch events
+canvas.addEventListener("touchcancel", touch, false);
+canvas.addEventListener("touchend", touch, false);
+canvas.addEventListener("touchmove", touch, false);
+canvas.addEventListener("touchstart", touch, false);
+
+// Keyboard events
+canvas.addEventListener("keydown", keydown, false);
+canvas.addEventListener("keyup", keyup, false);
+
+// Global
+window.addEventListener("resize", resize, false);
+
+// Device
+window.addEventListener("devicemotion", devicemotion, false);
+window.addEventListener("deviceorientation", deviceorientation, false);
+window.addEventListener("devicelight", devicelight, false);
+window.addEventListener("deviceproximity", deviceproximity, false);
+
+function contextmenu(e) {
     if (e.preventDefault !== undefined)
         e.preventDefault();
     if (e.stopPropagation !== undefined)
         e.stopPropagation();
     return false;
-}, false);
-
-// Touch events
-canvas.addEventListener("touchcancel", touchcancel, true);
-canvas.addEventListener("touchend", touchend, true);
-canvas.addEventListener("touchmove", touchmove, true);
-canvas.addEventListener("touchstart", touchstart, true);
-
-// Keyboard events
-canvas.addEventListener("keydown", keydown, true);
-canvas.addEventListener("keyup", keyup, true);
-
-// Global
-window.addEventListener("resize", resize, true);
-
-// Motion
-window.addEventListener("devicemotion", devicemotion, true);
-window.addEventListener("deviceorientation", deviceorientation, true);
-
-
+}
 
 function mouse(e) {
     var target = e.target;
@@ -53,7 +55,6 @@ function mouse(e) {
     };
     mainInterface.time = e.timeStamp;
     timeStep();
-
 }
 
 function keydown(e) {
@@ -90,46 +91,68 @@ function keyup(e) {
 
 
 function resize(e) {
-    console.log("resize");
+  mainInterface.size = {
+    width:canvas.offsetWidth,
+    height:canvas.offsetHeight
+  };
+  mainInterface.time = e.timeStamp;
+  timeStep();
 }
 
 function devicemotion(e) {
-    console.log("devidemotion");
-
+    console.log("devicemotion");
 }
 
 function deviceorientation(e) {
     console.log("deviceorientation");
-
 }
 
-function touchcancel(e) {
-
+function devicelight(e) {
+    console.log("devicelight");
 }
 
-function touchend(e) {
-
+function deviceproximity(e) {
+    console.log("deviceproximity");
 }
 
-function touchmove(e) {
-
+function touch(e) {
+  var rect = canvas.getBoundingClientRect();
+  var i;
+  var touches = [];
+  for(i=0;i<e.touches.length;i++){
+    touches[i]={};
+    var offsetX = e.touches[i].clientX - rect.left;
+    var offsetY = e.touches[i].clientY - rect.top;
+    touches[i].position = {x:offsetX,y:offsetY};
+    touches[i].identifier = e.touches[i].identifier;
+    touches[i].radius = {x:e.touches[i].radiusX,y:e.touches[i].radiusY};
+    touches[i].rotationAngle = e.touches[i].rotationAngle;
+    touches[i].force = e.touches[i].force;
+  }
+  mainInterface.touch = touches;
+  mainInterface.time = e.timeStamp;
+  timeStep();
 }
 
-function touchstart(e) {
 
-}
 
 
 
 // III stuff
 
 function timeStep() {
-    drawCursor(mainInterface.mouse.position.x, mainInterface.mouse.position.y);
-    console.log(JSON.stringify(mainInterface));
+  canvas.setAttribute('width',  mainInterface.size.width);
+  canvas.setAttribute('height',  mainInterface.size.height);
+  drawCursor(mainInterface.mouse.position.x, mainInterface.mouse.position.y);
+  console.log(JSON.stringify(mainInterface));
 }
 
 
-var mainInterface = {
+var mainInterface;
+
+setTimeout(function(){
+  console.log("Initialized");
+  mainInterface = {
     mouse: {
         buttons: 0,
         position: {
@@ -143,6 +166,11 @@ var mainInterface = {
         }
     },
     time: 0,
+    touch:[],
+    size:{
+      width:canvas.offsetWidth,
+      height:canvas.offsetHeight
+    },
     keyboard: {
         "U+0041": false,
         "U+0040": false,
@@ -217,6 +245,7 @@ var mainInterface = {
         "F12": false
     }
 };
+},100);
 
 
 
