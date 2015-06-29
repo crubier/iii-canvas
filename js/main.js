@@ -24,7 +24,7 @@ function mouse(e) {
         wheel: {
             x: (e.deltaX !== undefined && e.deltaX !== null) ? e.deltaX : 0,
             y: (e.deltaY !== undefined && e.deltaY !== null) ? e.deltaY : 0,
-            z: (e.deltaZ !== undefined && e.deltaZ !== null )? e.deltaZ : 0
+            z: (e.deltaZ !== undefined && e.deltaZ !== null) ? e.deltaZ : 0
         }
     };
     mainInterface.time = e.timeStamp;
@@ -78,19 +78,18 @@ function devicemotion(e) {
     // accelerationIncludingGravity	DeviceAcceleration Read only	The acceleration of the device. This value includes the effect of gravity, and may be the only value available on devices that don't have a gyroscope to allow them to properly remove gravity from the data.
     // interval Read only	double	The interval, in milliseconds, at which the DeviceMotionEvent is fired. The next event will be fired in approximately this amount of time.
     // rotationRate Read only	DeviceRotationRate
-
+    //TODO
 }
 
 function deviceorientation(e) {
-  console.log("orientation");
     //   alpha Read only	double (float)	The current orientation of the device around the Z axis; that is, how far the device is rotated around a line perpendicular to the device.
     // beta Read only	double (float)	The current orientation of the device around the X axis; that is, how far the device is tipped forward or backward.
     // gamma Read only	double (float)	The current orientation of the device around the Y axis; that is, how far the device is turned left or right.
     // absolute Read only	boolean	This value is true if the orientation is provided as a difference between the device coordinate frame and the Earth coordinate frame; if the device can't detect the Earth coordinate frame, this value is false.
     mainInterface.device.orientation = {
-        alpha: (e.alpha!==undefined && e.alpha!==null )?e.alpha:0,
-        beta: (e.beta!==undefined && e.beta!==null)?e.beta:0,
-        gamma: (e.gamma!==undefined && e.gamma!==null)?e.gamma:0
+        alpha: (e.alpha !== undefined && e.alpha !== null) ? e.alpha : 0,
+        beta: (e.beta !== undefined && e.beta !== null) ? e.beta : 0,
+        gamma: (e.gamma !== undefined && e.gamma !== null) ? e.gamma : 0
     };
     mainInterface.time = e.timeStamp;
     timeStep();
@@ -146,15 +145,18 @@ function touch(e) {
 function timeStep() {
     canvas.setAttribute('width', mainInterface.size.width);
     canvas.setAttribute('height', mainInterface.size.height);
-    drawCursor(mainInterface.mouse.position.x, mainInterface.mouse.position.y);
-    console.log(JSON.stringify(mainInterface));
+    computeMainInterface();
+    var ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, mainInterface.size.width, mainInterface.size.height);
+    draw(ctx, mainInterface.graphics);
+    // console.log(JSON.stringify(mainInterface));
 }
 
 
 var mainInterface;
 
 setTimeout(function() {
-    console.log("Initialized");
+    console.log("iii System Initialized");
     mainInterface = {
         mouse: {
             buttons: 0,
@@ -255,7 +257,8 @@ setTimeout(function() {
             "F10": false,
             "F11": false,
             "F12": false
-        }
+        },
+        graphics: {}
     };
     // Mouse events
     canvas.addEventListener("mousemove", mouse, false);
@@ -285,21 +288,88 @@ setTimeout(function() {
     window.addEventListener("devicelight", devicelight, false);
     window.addEventListener("deviceproximity", deviceproximity, false);
 
-
     timeStep();
 }, 100);
 
 
+function computeMainInterface() {
 
+    var cursor = {
+        type: "shadow",
+        blur: 20,
+        offset: {
+            x: 0,
+            y: 4
+        },
+        color: "rgba(0, 0, 0, 0.5)",
+        content: {
+            type: "translate",
+            x: mainInterface.mouse.position.x,
+            y: mainInterface.mouse.position.y,
+            content: {
+                type: "fill",
+                style: "rgba(200, 0, 200, 1)",
+                content: {
+                    type: "path",
+                    content: [{
+                        type: "begin"
+                    }, {
+                        type: "move",
+                        x: 0,
+                        y: 0
+                    }, {
+                        type: "line",
+                        x: 0,
+                        y: 15
+                    }, {
+                        type: "line",
+                        x: 10.6,
+                        y: 10.6
+                    }, {
+                        type: "close"
+                    }]
+                }
+            }
+        }
+    };
+
+    var theWindow = {
+        type: "shadow",
+        blur: 20,
+        offset: {
+            x: 0,
+            y: 4
+        },
+        color: "rgba(0, 0, 0, 0.5)",
+        content: {
+            type: "fill",
+            style: "rgba(255, 255, 255, 1)",
+            content: {
+                type: "rect",
+                x:30,
+                y:30,
+                width:mainInterface.size.width-60,
+                height:mainInterface.size.height-60
+            }
+        }
+    };
+
+    mainInterface.graphics = {
+        type: "group",
+        content: [
+            theWindow,
+            cursor
+        ]
+    };
+
+}
 
 
 // Rendering stuff
 
 
 
-
-
-function drawCursor(x, y) {
+function drawCursor() {
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, 800, 600);
     var cursor = {
@@ -312,8 +382,8 @@ function drawCursor(x, y) {
         color: "rgba(0, 0, 0, 0.5)",
         content: {
             type: "translate",
-            x: x,
-            y: y,
+            x: mainInterface.mouse.position.x,
+            y: mainInterface.mouse.position.y,
             content: {
                 type: "fill",
                 style: "rgba(200, 0, 200, 1)",
@@ -342,6 +412,7 @@ function drawCursor(x, y) {
     };
     draw(ctx, cursor);
 }
+
 
 // Generic retained mode rendering
 
@@ -375,7 +446,7 @@ function draw(ctx, object) {
             }
             break;
         case "rect":
-            ctx.rect(object.x1, object.y1, object.x2, object.x2);
+            ctx.rect(object.x, object.y, object.width, object.height);
             break;
         case "shadow":
             ctx.save();
@@ -437,6 +508,6 @@ function draw(ctx, object) {
             }
             break;
         default:
-            throw new Error("unexpected graphic element type" + object.type);
+            throw new Error("unexpected graphic element type \"" + object.type +"\"");
     }
 }

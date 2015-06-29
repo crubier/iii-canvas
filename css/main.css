@@ -61,8 +61,10 @@ textarea {
 #canvas {
   width:100%;
   height:100%;
-  background-color: rgb(250, 250, 250);
-  cursor:crosshair;
+  position:absolute;
+
+  background-color: rgb(200, 200, 200);
+  cursor:none;
 }
 
 

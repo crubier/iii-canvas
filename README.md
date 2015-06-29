@@ -10,6 +10,7 @@ The binding that allow to execute iii interaction that comply to the `WIMP` inte
         time: Number in,
         keyboard: {} in,
         motion: {} in,
+        motion: {} in,
         dimension: {} in
       }
 
