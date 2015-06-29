@@ -1,144 +1,115 @@
 var canvas = document.getElementById("canvas");
 
 // Mouse events
-canvas.addEventListener("mousemove", mousemove,true);
-canvas.addEventListener("mousedown",mousedown,true);
-canvas.addEventListener("mouseup",mouseup,true);
-canvas.addEventListener("wheel",wheel,true);
+canvas.addEventListener("mousemove", mouse, true);
+canvas.addEventListener("mousedown", mouse, true);
+canvas.addEventListener("mouseup", mouse, true);
+canvas.addEventListener("wheel", mouse, true);
 
 // Prevent context menu
-canvas.addEventListener("contextmenu",function(e){
-  if(e.preventDefault !== undefined)
-   e.preventDefault();
-  if(e.stopPropagation !== undefined)
-   e.stopPropagation();
-  return false;
-},false);
+canvas.addEventListener("contextmenu", function(e) {
+    if (e.preventDefault !== undefined)
+        e.preventDefault();
+    if (e.stopPropagation !== undefined)
+        e.stopPropagation();
+    return false;
+}, false);
 
 // Touch events
-canvas.addEventListener("touchcancel"	, touchcancel,true);
-canvas.addEventListener("touchend"	, touchend,true);
-canvas.addEventListener("touchmove"	, touchmove,true);
-canvas.addEventListener("touchstart", touchstart,true);
+canvas.addEventListener("touchcancel", touchcancel, true);
+canvas.addEventListener("touchend", touchend, true);
+canvas.addEventListener("touchmove", touchmove, true);
+canvas.addEventListener("touchstart", touchstart, true);
 
 // Keyboard events
-canvas.addEventListener("keydown"	, keydown,true);
-canvas.addEventListener("keyup"	, keyup,true);
+canvas.addEventListener("keydown", keydown, true);
+canvas.addEventListener("keyup", keyup, true);
 
 // Global
-window.addEventListener("resize",resize,true);
+window.addEventListener("resize", resize, true);
 
 // Motion
 window.addEventListener("devicemotion", devicemotion, true);
 window.addEventListener("deviceorientation", deviceorientation, true);
 
-//
-// altKey	Returns whether the "ALT" key was pressed when the mouse event was triggered	2
-// button	Returns which mouse button was pressed when the mouse event was triggered	2
-// buttons	Returns which mouse buttons were pressed when the mouse event was triggered	3
-// clientX	Returns the horizontal coordinate of the mouse pointer, relative to the current window, when the mouse event was triggered	2
-// clientY	Returns the vertical coordinate of the mouse pointer, relative to the current window, when the mouse event was triggered	2
-// ctrlKey	Returns whether the "CTRL" key was pressed when the mouse event was triggered	2
-// detail	Returns a number that indicates how many times the mouse was clicked	2
-// metaKey	Returns whether the "META" key was pressed when an event was triggered	2
-// relatedTarget	Returns the element related to the element that triggered the mouse event	2
-// screenX	Returns the horizontal coordinate of the mouse pointer, relative to the screen, when an event was triggered	2
-// screenY	Returns the vertical coordinate of the mouse pointer, relative to the screen, when an event was triggered	2
-// shiftKey	Returns whether the "SHIFT" key was pressed when an event was triggered	2
-// which	Returns which mouse button was pressed when the mouse event was triggered
 
-function mousedown(e) {
-  var target = e.target;
-  var rect = canvas.getBoundingClientRect();
-  var offsetX = e.clientX - rect.left;
-  var offsetY = e.clientY - rect.top;
-  var mouse={
-    buttons:e.buttons,
-    position:{
-      x:offsetX,
-      y:offsetY
-    }
-  };
-  var time = {
-    time:e.timeStamp
-  };
-  var maininterface = {mouse:mouse,time:time};
-  console.log("mousedown "+JSON.stringify(maininterface));
-}
 
-function mouseup(e) {
-  var target = e.target;
-var rect = canvas.getBoundingClientRect();
-var offsetX = e.clientX - rect.left;
-var offsetY = e.clientY - rect.top;
-var mouse={
-  buttons:e.buttons,
-  position:{
-    x:offsetX,
-    y:offsetY
-  }
-};
-var time = {
-  time:e.timeStamp
-};
-var maininterface = {mouse:mouse,time:time};
-console.log("mouseup "+JSON.stringify(maininterface));
-}
+function mouse(e) {
+    var target = e.target;
+    var rect = canvas.getBoundingClientRect();
+    var offsetX = e.clientX - rect.left;
+    var offsetY = e.clientY - rect.top;
+    mainInterface.mouse = {
+        buttons: e.buttons,
+        position: {
+            x: offsetX,
+            y: offsetY
+        },
+        wheel: {
+            x: e.deltaX !== undefined ? e.deltaX : 0,
+            y: e.deltaY !== undefined ? e.deltaY : 0,
+            z: e.deltaZ !== undefined ? e.deltaZ : 0
+        }
+    };
+    mainInterface.time = e.timeStamp;
+    timeStep();
 
-function mousemove(e) {
-  var target = e.target;
-  var rect = canvas.getBoundingClientRect();
-  var offsetX = e.clientX - rect.left;
-  var offsetY = e.clientY - rect.top;
-  var mouse={
-    buttons:e.buttons,
-    position:{
-      x:offsetX,
-      y:offsetY
-    }
-  };
-  var time = {
-    time:e.timeStamp
-  };
-  var maininterface = {mouse:mouse,time:time};
-  console.log("mousemove "+JSON.stringify(maininterface));
-    drawCursor(offsetX, offsetY);
-}
-
-function wheel(e) {
-  console.log("wheel");
 }
 
 function keydown(e) {
-  console.log("keydown");
+    var key;
+    if (event.key !== undefined) {
+        key = event.key;
+    } else if (event.keyIdentifier !== undefined) {
+        key = event.keyIdentifier;
+    } else if (event.keyCode !== undefined) {
+        key = event.keyCode;
+    }
+    if (mainInterface.keyboard[key] !== true) {
+        mainInterface.keyboard[key] = true;
+        timeStep();
+    }
 }
 
 function keyup(e) {
-  console.log("keyup");
+    var key;
+    if (event.key !== undefined) {
+        key = event.key;
+    } else if (event.keyIdentifier !== undefined) {
+        key = event.keyIdentifier;
+    } else if (event.keyCode !== undefined) {
+        key = event.keyCode;
+    }
+    if (mainInterface.keyboard[key] !== false) {
+        mainInterface.keyboard[key] = false;
+        timeStep();
+    }
 }
 
 
 function resize(e) {
-  console.log("resize");
+    console.log("resize");
 }
 
-function devicemotion(e){
-
-}
-
-function deviceorientation(e){
+function devicemotion(e) {
+    console.log("devidemotion");
 
 }
 
-function touchcancel(e){
+function deviceorientation(e) {
+    console.log("deviceorientation");
 
 }
 
-function touchend(e){
+function touchcancel(e) {
 
 }
 
-function touchmove(e){
+function touchend(e) {
+
+}
+
+function touchmove(e) {
 
 }
 
@@ -148,16 +119,108 @@ function touchstart(e) {
 
 
 
+// III stuff
+
+function timeStep() {
+    drawCursor(mainInterface.mouse.position.x, mainInterface.mouse.position.y);
+    console.log(JSON.stringify(mainInterface));
+}
+
+
+var mainInterface = {
+    mouse: {
+        buttons: 0,
+        position: {
+            x: 0,
+            y: 0
+        },
+        wheel: {
+            x: 0,
+            y: 0,
+            z: 0
+        }
+    },
+    time: 0,
+    keyboard: {
+        "U+0041": false,
+        "U+0040": false,
+        "U+0026": false,
+        "U+00E9": false,
+        "U+0022": false,
+        "U+0027": false,
+        "U+0028": false,
+        "U+00A7": false,
+        "U+00E8": false,
+        "U+0021": false,
+        "U+00E7": false,
+        "U+00E0": false,
+        "U+0029": false,
+        "U+002D": false,
+        "U+0009": true,
+        "U+005A": false,
+        "U+0045": false,
+        "U+0052": false,
+        "U+0054": false,
+        "U+0059": false,
+        "U+0055": false,
+        "U+0049": false,
+        "U+004F": false,
+        "U+0050": false,
+        "Unidentified": false,
+        "U+0024": false,
+        "Enter": false,
+        "Meta": false,
+        "Control": false,
+        "Alt": false,
+        "Shift": false,
+        "U+0051": false,
+        "U+0053": false,
+        "U+0044": false,
+        "U+0046": false,
+        "U+0047": false,
+        "U+0048": false,
+        "U+004A": false,
+        "U+004B": false,
+        "U+004C": false,
+        "U+004D": false,
+        "U+00F9": false,
+        "U+0020": false,
+        "U+003C": false,
+        "U+0057": false,
+        "U+0058": false,
+        "U+0043": false,
+        "U+0056": false,
+        "U+0042": false,
+        "U+004E": false,
+        "U+002C": false,
+        "U+003B": false,
+        "U+003A": false,
+        "U+003D": false,
+        "Left": false,
+        "Down": false,
+        "Right": false,
+        "Up": false,
+        "U+001B": false,
+        "F1": false,
+        "F2": false,
+        "F3": false,
+        "F4": false,
+        "F5": false,
+        "F6": false,
+        "F7": false,
+        "F8": false,
+        "F9": false,
+        "F10": false,
+        "F11": false,
+        "F12": false
+    }
+};
 
 
 
 
-var mainInterface = {};
 
-
-
-
-
+// Rendering stuff
 
 
 
@@ -167,14 +230,17 @@ function drawCursor(x, y) {
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, 800, 600);
     var cursor = {
-      type:"shadow",
-      blur:20,
-      offset:{x:0,y:4},
-      color:"rgba(0, 0, 0, 0.5)",
-      content:{
-        type: "translate",
-        x: x,
-        y: y,
+        type: "shadow",
+        blur: 20,
+        offset: {
+            x: 0,
+            y: 4
+        },
+        color: "rgba(0, 0, 0, 0.5)",
+        content: {
+            type: "translate",
+            x: x,
+            y: y,
             content: {
                 type: "fill",
                 style: "rgba(200, 0, 200, 1)",
@@ -199,9 +265,12 @@ function drawCursor(x, y) {
                     }]
                 }
             }
-    }};
-    draw(ctx,cursor);
+        }
+    };
+    draw(ctx, cursor);
 }
+
+// Generic retained mode rendering
 
 function draw(ctx, object) {
     var i;
@@ -295,6 +364,6 @@ function draw(ctx, object) {
             }
             break;
         default:
-          throw new Error("unexpected graphic element type"+object.type);
+            throw new Error("unexpected graphic element type" + object.type);
     }
 }
